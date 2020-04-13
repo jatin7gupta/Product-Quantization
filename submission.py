@@ -1,5 +1,8 @@
 from scipy.spatial import distance
+from collections import defaultdict
+import numpy as np
 def pq(data, P, init_centroids, max_iter):
+    d = defaultdict(list)
     # constant variables
     ROW_LENGTH, COL_LENGTH = data.shape
 
@@ -9,6 +12,10 @@ def pq(data, P, init_centroids, max_iter):
         # To get P as centroid index
         centriod_index = index//size_of_division
         ans = distance.cdist(data[:, index:index+size_of_division], init_centroids[centriod_index], 'cityblock')
+        print(np.argmin(ans, axis=1))
+        for idx, value in enumerate(np.argmin(ans, axis=1)):
+            d[value].append(idx)
+
         print(ans)
 
 
