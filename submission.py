@@ -33,10 +33,10 @@ def pq(data, P, init_centroids, max_iter):
             for index in range(0, COL_LENGTH, size_of_division):
                 codebook_index = index // size_of_division
                 init_centroids[codebook_index][cluster_key] = \
-                    np.mean(data[data_points, index:index+size_of_division], axis=0)
+                    np.median(data[data_points, index:index+size_of_division], axis=0)
 
         max_iter = max_iter-1
-
+    # TODO: maybe we have to calculate once again
     codes = None
     first_time = True
     for index in range(0, COL_LENGTH, size_of_division):
@@ -54,6 +54,26 @@ def pq(data, P, init_centroids, max_iter):
     return init_centroids, codes.astype(np.uint8)
 
 
-
 def query(queries, codebooks, codes, T):
-    pass
+    # final result list
+    result_list = []
+    QUERIES_COUNT, COL_LENGTH = queries.shape
+    CODE_BOOK_NUMBER, K, SUB_VECTOR_DIMS_SIZE = codebooks.shape
+    for q in queries:
+        # creating result set
+        result_set = set()
+
+        distance_centriod_query = []
+        # break the queries into sub vectors
+        for index in range(0, COL_LENGTH, SUB_VECTOR_DIMS_SIZE):
+            codebook_index = index // SUB_VECTOR_DIMS_SIZE
+
+            # using l1 distance as cityblock
+            # codebook_distance_sum = distance.cdist(codebooks[codebook_index],q[index:index + SUB_VECTOR_DIMS_SIZE],
+            #                                         'cityblock')
+            dist = (abs(q[index:index + SUB_VECTOR_DIMS_SIZE] - codebooks[codebook_index]))
+            distance_centriod_query.append(np.sum(dist, axis=1))
+            x=2
+
+        # adding result set to the result list
+        result_list.append(result_set)
