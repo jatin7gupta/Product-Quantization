@@ -58,7 +58,19 @@ def query(queries, codebooks, codes, T):
     # final result list
     result_list = []
     QUERIES_COUNT, COL_LENGTH = queries.shape
+    NUMBER_OF_DATA_POINTS, DIVISIONS = codes.shape
     CODE_BOOK_NUMBER, K, SUB_VECTOR_DIMS_SIZE = codebooks.shape
+
+    # creating P clusters depecting
+    subvectors_clusters=[]
+    for i in range(DIVISIONS):
+        subvectors_clusters.append(defaultdict(list))
+
+    for data_index, points in enumerate(codes):
+        for point_index, point in enumerate(points):
+            subvectors_clusters[point_index][point].append(data_index)
+
+
     for q in queries:
         # creating result set
         result_set = set()
