@@ -60,22 +60,22 @@ def query(queries, codebooks, codes, T):
     QUERIES_COUNT, COL_LENGTH = queries.shape
     NUMBER_OF_DATA_POINTS, DIVISIONS = codes.shape
     CODE_BOOK_NUMBER, K, SUB_VECTOR_DIMS_SIZE = codebooks.shape
+    multi_index_list = []
 
     # creating P clusters depecting
     subvectors_clusters=[]
     for i in range(DIVISIONS):
         subvectors_clusters.append(defaultdict(list))
+        multi_index_list.append(list())
 
     for data_index, points in enumerate(codes):
         for point_index, point in enumerate(points):
             subvectors_clusters[point_index][point].append(data_index)
 
-
     for q in queries:
         # creating result set
         result_set = set()
 
-        distance_centriod_query = []
         # break the queries into sub vectors
         for index in range(0, COL_LENGTH, SUB_VECTOR_DIMS_SIZE):
             codebook_index = index // SUB_VECTOR_DIMS_SIZE
@@ -84,8 +84,11 @@ def query(queries, codebooks, codes, T):
             # codebook_distance_sum = distance.cdist(codebooks[codebook_index],q[index:index + SUB_VECTOR_DIMS_SIZE],
             #                                         'cityblock')
             dist = (abs(q[index:index + SUB_VECTOR_DIMS_SIZE] - codebooks[codebook_index]))
-            distance_centriod_query.append(np.sum(dist, axis=1))
-            x=2
+            distance_subquery_codebooks = np.sum(dist, axis=1)
+            for cluster_number, distance in enumerate(distance_subquery_codebooks):
+                multi_index_list[codebook_index].append((cluster_number, distance))
 
+        
         # adding result set to the result list
         result_list.append(result_set)
+    return result_list
