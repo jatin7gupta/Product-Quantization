@@ -61,6 +61,7 @@ def query(queries, codebooks, codes, T):
     NUMBER_OF_DATA_POINTS, DIVISIONS = codes.shape
     CODE_BOOK_NUMBER, K, SUB_VECTOR_DIMS_SIZE = codebooks.shape
     multi_index_list = []
+    DISTANCE = 1
 
     # creating P clusters depecting
     subvectors_clusters=[]
@@ -88,7 +89,10 @@ def query(queries, codebooks, codes, T):
             for cluster_number, distance in enumerate(distance_subquery_codebooks):
                 multi_index_list[codebook_index].append((cluster_number, distance))
 
-        
+        # sort multi_index_list
+        for l in multi_index_list:
+            l.sort(key=lambda x: x[DISTANCE])
+
         # adding result set to the result list
         result_list.append(result_set)
     return result_list
