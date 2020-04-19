@@ -69,6 +69,38 @@ class Node(object):
 # s.add((1,(1,2,3)))
 # print(s)
 
-table = itertools.product([0, 1], repeat=1)
-for p in table:
-    print(p)
+# table = itertools.product([0, 1], repeat=1)
+# for p in table:
+#     print(p)
+
+def addStringAtIndex(string_row:str, index: int):
+    string_row = string_row[:index] + '0' + string_row[index:]
+    return string_row
+
+def stringTable(str_table: list, index: int):
+    new_tab = list()
+    for item in str_table:
+        new_tab.append(addStringAtIndex(item, index))
+    return new_tab
+
+def constructTT(divisions: int):
+    tru_table = list()
+    table = [item for item in itertools.product([0, 1], repeat=divisions-1)]
+    str_table = []
+
+    for p in table:
+        p = "".join(map(str, p))
+        str_table.append(p)
+
+    for i in range(divisions):
+        tru_table.append(stringTable(str_table, i))
+
+        # for tab in tru_table[i]:
+        #     tab = addStringAtIndex(tab, i)
+    for tab in tru_table:
+        print(tab)
+
+        # for t in tab:
+        #     print(len(t))
+    # print(tru_table)
+constructTT(divisions=4)
