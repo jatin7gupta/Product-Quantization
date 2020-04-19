@@ -78,15 +78,23 @@ def query(queries, codebooks, codes, T):
     CLUSTER_NUMBER = 0
     DISTANCE = 1
 
+    class Node(object):
+        def __init__(self, dist: int, centroid_number_tuple: tuple):
+            self.dist = dist
+            self.centroid_number_tuple = centroid_number_tuple
+
+        def __lt__(self, other):
+            return self.dist < other.dist
+
+
     # creating P clusters depecting
-    subvectors_clusters=[]
+    subvectors_clusters = defaultdict(list)
     for i in range(DIVISIONS):
-        subvectors_clusters.append(defaultdict(list))
+        # subvectors_clusters.append(defaultdict(list))
         multi_index_list.append(list())
 
     for data_index, points in enumerate(codes):
-        for point_index, point in enumerate(points):
-            subvectors_clusters[point_index][point].append(data_index)
+        subvectors_clusters[tuple(points)].append(data_index)
 
     for q in queries:
         # creating result set
@@ -110,23 +118,20 @@ def query(queries, codebooks, codes, T):
 
         # this set will contain tuples which were added in the set for no duplication. (dedup)
         previous_occur = set()
-        while len(result_set) < T:
+        base_list = [0] * len(multi_index_list)
+        heap = []
 
-            # take all zeros at once
-            sum_of_distances = 0
-            min_cluster_value = []
-            for idx, index_list in enumerate(multi_index_list):
-                top_row = index_list[0]
-                sum_of_distances += top_row[DISTANCE]
-                min_cluster_value.append((idx, top_row[CLUSTER_NUMBER]))
+        # init get first row of all tables
+        distance_centroid_query = 0
+        centriod_key = []
+        for idx, cluster_point in enumerate(base_list):
+            tuple_centriod_number_distance = multi_index_list[idx][cluster_point]
+            distance_centroid_query += tuple_centriod_number_distance[DISTANCE]
+            centriod_key.append(tuple_centriod_number_distance[CLUSTER_NUMBER])
+        heapq.heappush(heap, Node(distance_centroid_query, tuple(centriod_key)))
 
-            for codebook_number, cluster_number in min_cluster_value:
-                for data_points in subvectors_clusters[codebook_number][cluster_number]:
-                    result_set.add(data_points)
-
-
-            # for idx, index_list in enumerate(multi_index_list):
-            #     table = itertools.product([0, 1], repeat=len(multi_index_list)-1)
+        while len(result_set) < T and len(heap) > 0:
+            pass
 
         # adding result set to the result list
         result_list.append(result_set)
