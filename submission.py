@@ -75,6 +75,7 @@ def query(queries, codebooks, codes, T):
     NUMBER_OF_DATA_POINTS, DIVISIONS = codes.shape
     CODE_BOOK_NUMBER, K, SUB_VECTOR_DIMS_SIZE = codebooks.shape
     multi_index_list = []
+    CLUSTER_NUMBER = 0
     DISTANCE = 1
 
     # creating P clusters depecting
@@ -109,8 +110,23 @@ def query(queries, codebooks, codes, T):
 
         # this set will contain tuples which were added in the set for no duplication. (dedup)
         previous_occur = set()
-        for idx, index_list in enumerate(multi_index_list):
-            table = itertools.product([0, 1], repeat=len(multi_index_list)-1)
+        while len(result_set) < T:
+
+            # take all zeros at once
+            sum_of_distances = 0
+            min_cluster_value = []
+            for idx, index_list in enumerate(multi_index_list):
+                top_row = index_list[0]
+                sum_of_distances += top_row[DISTANCE]
+                min_cluster_value.append((idx, top_row[CLUSTER_NUMBER]))
+
+            for codebook_number, cluster_number in min_cluster_value:
+                for data_points in subvectors_clusters[codebook_number][cluster_number]:
+                    result_set.add(data_points)
+
+
+            # for idx, index_list in enumerate(multi_index_list):
+            #     table = itertools.product([0, 1], repeat=len(multi_index_list)-1)
 
         # adding result set to the result list
         result_list.append(result_set)
