@@ -1,5 +1,5 @@
 # import heapq
-# import time
+import time
 # from queue import PriorityQueue
 import itertools
 #
@@ -103,4 +103,53 @@ def constructTT(divisions: int):
         # for t in tab:
         #     print(len(t))
     # print(tru_table)
-constructTT(divisions=4)
+# constructTT(divisions=3)
+
+import numpy as np
+# def myfunc(a, b):
+#   return a + b
+# x = map(myfunc, itertools.product([0, 1], repeat=2), [2,2])
+# print(list(x))
+# #
+# start = time.time()
+# for i in range(10000000):
+#     l = []
+#     for e in itertools.product([0, 1], repeat=2):
+#         x = map(myfunc, e, (2, 2))
+#         l.append(tuple(x))
+# end = time.time()
+# print(end - start)
+#
+#
+# start = time.time()
+# for i in range(10000000):
+#
+#     array = np.array([item for item in itertools.product([0, 1], repeat=2)])
+#     array2 = np.array([2,2])
+#     array+array2
+# end = time.time()
+# print(end - start)
+
+# l  = 3
+# for idx, val in enumerate(range(3)):
+#     print(idx, val)
+base = [0,0,0]
+stencil_matrix =[]
+for idx, val in enumerate(base):
+    for idx_i, val_i in enumerate(itertools.product([0, 1], repeat=len(base)-1)):
+        # tuple does not support insert, if this is expensive we will use slicing
+        list_from_tuples = list(val_i)
+        list_from_tuples.insert(idx, val)
+        stencil_matrix.append(list_from_tuples)
+
+
+def adder(a, b):
+    return a + b
+
+
+l = []
+for e in stencil_matrix:
+    # replace new smallest vector from heap in place of (0,1,1)
+    x = map(adder, e, (0,0,0))
+    l.append(tuple(x))
+print(l)

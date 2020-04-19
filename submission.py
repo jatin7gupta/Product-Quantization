@@ -79,9 +79,10 @@ def query(queries, codebooks, codes, T):
     DISTANCE = 1
 
     class Node(object):
-        def __init__(self, dist: int, centroid_number_tuple: tuple):
+        def __init__(self, dist: int, centroid_number_tuple: tuple, centroid_index_tuple: tuple):
             self.dist = dist
             self.centroid_number_tuple = centroid_number_tuple
+            self.centroid_index_tuple = centroid_index_tuple
 
         def __lt__(self, other):
             return self.dist < other.dist
@@ -120,34 +121,67 @@ def query(queries, codebooks, codes, T):
         heap = []
 
         # init get first row of all tables
-        distance_centroid_query = 0
-        centriod_key = []
+
         dedup_set = set()
-        for idx, cluster_point in enumerate(base_list):
-            tuple_centriod_number_distance = multi_index_list[idx][cluster_point]
-            distance_centroid_query += tuple_centriod_number_distance[DISTANCE]
-            centriod_key.append(tuple_centriod_number_distance[CENTROID_NUMBER])
+
+        centriod_key, distance_centroid_query = get_smallest_centroid_datapoints(CENTROID_NUMBER, DISTANCE, base_list,
+                                                                                 multi_index_list)
 
         # add new node to heap
         tuple_centriod_key = tuple(centriod_key)
-        dedup_set.add(tuple_centriod_key)
-        heapq.heappush(heap, Node(distance_centroid_query, tuple_centriod_key))
+        tuple_index_key = tuple(base_list)
+        dedup_set.add(tuple_index_key)
+        heapq.heappush(heap, Node(distance_centroid_query, tuple_centriod_key, tuple_index_key))
+
+        stencil_matrix = []
+        for idx, val in enumerate(base_list):
+            for idx_i, val_i in enumerate(itertools.product([0, 1], repeat=len(base_list)-1)):
+                # tuple does not support insert, if this is expensive we will use slicing
+                list_from_tuples = list(val_i)
+                list_from_tuples.insert(idx, val)
+                stencil_matrix.append(list_from_tuples)
+
+        def adder(a, b):
+            return a + b
 
         while len(result_set) < T and len(heap) > 0:
             # get the top value form the top
-            centroid_number_tuple = heapq.heappop(heap).centroid_number_tuple
+            node = heapq.heappop(heap)
+            centroid_number_tuple = node.centroid_number_tuple
+            centroid_index_tuple = node.centroid_index_tuple
 
             # add results to the set
             for data_point in subvectors_clusters[centroid_number_tuple]:
                 result_set.add(data_point)
 
-            # fix one, all all and maintain it in centroid_key variable
+            for e in stencil_matrix:
+                one_step_ahead = map(adder, e, centroid_index_tuple)
+                # search for dedup
+                one_step_ahead = tuple(one_step_ahead)
+                if one_step_ahead not in dedup_set:
+                    # added to dedup set
+                    dedup_set.add(one_step_ahead)
 
-            # before adding nodes to the heap, check dedup set
-            # if not in dedup add nodes
-
+                    # get the value for heap
+                    centriod_key, distance_centroid_query = get_smallest_centroid_datapoints(CENTROID_NUMBER, DISTANCE, one_step_ahead,
+                                                     multi_index_list)
+                    # add new node to heap
+                    tuple_centriod_key = tuple(centriod_key)
+                    dedup_set.add(one_step_ahead)
+                    heapq.heappush(heap, Node(distance_centroid_query, tuple_centriod_key, one_step_ahead))
 
 
         # adding result set to the result list
         result_list.append(result_set)
     return result_list
+
+
+def get_smallest_centroid_datapoints(CENTROID_NUMBER, DISTANCE, base_list, multi_index_list):
+    # centriod_key can be change
+    centriod_key = []
+    distance_centroid_query = 0
+    for idx, cluster_point in enumerate(base_list):
+        tuple_centriod_number_distance = multi_index_list[idx][cluster_point]
+        distance_centroid_query += tuple_centriod_number_distance[DISTANCE]
+        centriod_key.append(tuple_centriod_number_distance[CENTROID_NUMBER])
+    return centriod_key, distance_centroid_query
