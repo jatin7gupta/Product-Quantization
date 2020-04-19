@@ -131,7 +131,14 @@ def query(queries, codebooks, codes, T):
         heapq.heappush(heap, Node(distance_centroid_query, tuple(centriod_key)))
 
         while len(result_set) < T and len(heap) > 0:
-            pass
+            # get the top value form the top
+            centroid_number_tuple = heapq.heappop(heap).centroid_number_tuple
+
+            # add results to the set
+            for data_point in subvectors_clusters[centroid_number_tuple]:
+                result_set.add(data_point)
+            
+
 
         # adding result set to the result list
         result_list.append(result_set)
