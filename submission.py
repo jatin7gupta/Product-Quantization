@@ -124,11 +124,16 @@ def query(queries, codebooks, codes, T):
         # init get first row of all tables
         distance_centroid_query = 0
         centriod_key = []
+        dedup_set = set()
         for idx, cluster_point in enumerate(base_list):
             tuple_centriod_number_distance = multi_index_list[idx][cluster_point]
             distance_centroid_query += tuple_centriod_number_distance[DISTANCE]
             centriod_key.append(tuple_centriod_number_distance[CLUSTER_NUMBER])
-        heapq.heappush(heap, Node(distance_centroid_query, tuple(centriod_key)))
+
+        # add new node to heap
+        tuple_centriod_key = tuple(centriod_key)
+        dedup_set.add(tuple_centriod_key)
+        heapq.heappush(heap, Node(distance_centroid_query, tuple_centriod_key))
 
         while len(result_set) < T and len(heap) > 0:
             # get the top value form the top
@@ -137,7 +142,12 @@ def query(queries, codebooks, codes, T):
             # add results to the set
             for data_point in subvectors_clusters[centroid_number_tuple]:
                 result_set.add(data_point)
+
+            # fix one, all all and maintain it in centroid_key variable
             
+            # before adding nodes to the heap, check dedup set
+            # if not in dedup add nodes
+
 
 
         # adding result set to the result list
