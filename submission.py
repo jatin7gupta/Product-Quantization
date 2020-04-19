@@ -1,6 +1,9 @@
 from scipy.spatial import distance
 from collections import defaultdict
 import numpy as np
+import heapq
+import itertools
+
 
 
 def pq(data, P, init_centroids, max_iter):
@@ -65,6 +68,7 @@ def pq(data, P, init_centroids, max_iter):
 
 
 def query(queries, codebooks, codes, T):
+
     # final result list
     result_list = []
     QUERIES_COUNT, COL_LENGTH = queries.shape
@@ -96,12 +100,17 @@ def query(queries, codebooks, codes, T):
             #                                         'cityblock')
             dist = (abs(q[index:index + SUB_VECTOR_DIMS_SIZE] - codebooks[codebook_index]))
             distance_subquery_codebooks = np.sum(dist, axis=1)
-            for cluster_number, distance in enumerate(distance_subquery_codebooks):
-                multi_index_list[codebook_index].append((cluster_number, distance))
+            for centroid_number, distance in enumerate(distance_subquery_codebooks):
+                multi_index_list[codebook_index].append((centroid_number, distance))
 
         # sort multi_index_list
         for l in multi_index_list:
             l.sort(key=lambda x: x[DISTANCE])
+
+        # this set will contain tuples which were added in the set for no duplication. (dedup)
+        previous_occur = set()
+        for idx, index_list in enumerate(multi_index_list):
+            table = itertools.product([0, 1], repeat=len(multi_index_list)-1)
 
         # adding result set to the result list
         result_list.append(result_set)
