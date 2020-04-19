@@ -75,7 +75,7 @@ def query(queries, codebooks, codes, T):
     NUMBER_OF_DATA_POINTS, DIVISIONS = codes.shape
     CODE_BOOK_NUMBER, K, SUB_VECTOR_DIMS_SIZE = codebooks.shape
     multi_index_list = []
-    CLUSTER_NUMBER = 0
+    CENTROID_NUMBER = 0
     DISTANCE = 1
 
     class Node(object):
@@ -116,8 +116,6 @@ def query(queries, codebooks, codes, T):
         for l in multi_index_list:
             l.sort(key=lambda x: x[DISTANCE])
 
-        # this set will contain tuples which were added in the set for no duplication. (dedup)
-        previous_occur = set()
         base_list = [0] * len(multi_index_list)
         heap = []
 
@@ -128,7 +126,7 @@ def query(queries, codebooks, codes, T):
         for idx, cluster_point in enumerate(base_list):
             tuple_centriod_number_distance = multi_index_list[idx][cluster_point]
             distance_centroid_query += tuple_centriod_number_distance[DISTANCE]
-            centriod_key.append(tuple_centriod_number_distance[CLUSTER_NUMBER])
+            centriod_key.append(tuple_centriod_number_distance[CENTROID_NUMBER])
 
         # add new node to heap
         tuple_centriod_key = tuple(centriod_key)
@@ -144,7 +142,7 @@ def query(queries, codebooks, codes, T):
                 result_set.add(data_point)
 
             # fix one, all all and maintain it in centroid_key variable
-            
+
             # before adding nodes to the heap, check dedup set
             # if not in dedup add nodes
 
