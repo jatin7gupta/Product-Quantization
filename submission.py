@@ -166,13 +166,13 @@ def query(queries, codebooks, codes, T):
                     dedup_set.add(one_step_ahead)
 
                     # get the value for heap
-                    centriod_key, distance_centroid_query = get_smallest_centroid_datapoints(CENTROID_NUMBER, DISTANCE, one_step_ahead,
-                                                     multi_index_list)
+                    centriod_key, distance_centroid_query = get_smallest_centroid_datapoints(
+                        CENTROID_NUMBER, DISTANCE, one_step_ahead, multi_index_list)
+
                     # add new node to heap
                     tuple_centriod_key = tuple(centriod_key)
                     dedup_set.add(one_step_ahead)
                     heapq.heappush(heap, Node(distance_centroid_query, tuple_centriod_key, one_step_ahead))
-
 
         # adding result set to the result list
         result_list.append(result_set)
