@@ -66,6 +66,12 @@ def pq(data, P, init_centroids, max_iter):
             codes = np.column_stack((codes, np.argmin(codes_distances, axis=1)))
     return init_centroids, codes.astype(np.uint8)
 
+def create_multi_index_list(DIVISIONS: int):
+    mi_list = list()
+    for i in range(DIVISIONS):
+        # subvectors_clusters.append(defaultdict(list))
+        mi_list.append(list())
+    return mi_list
 
 def query(queries, codebooks, codes, T):
 
@@ -74,7 +80,6 @@ def query(queries, codebooks, codes, T):
     QUERIES_COUNT, COL_LENGTH = queries.shape
     NUMBER_OF_DATA_POINTS, DIVISIONS = codes.shape
     CODE_BOOK_NUMBER, K, SUB_VECTOR_DIMS_SIZE = codebooks.shape
-    multi_index_list = []
     CENTROID_NUMBER = 0
     DISTANCE = 1
 
@@ -90,14 +95,14 @@ def query(queries, codebooks, codes, T):
 
     # creating P clusters depecting
     subvectors_clusters = defaultdict(list)
-    for i in range(DIVISIONS):
-        # subvectors_clusters.append(defaultdict(list))
-        multi_index_list.append(list())
+
 
     for data_index, points in enumerate(codes):
         subvectors_clusters[tuple(points)].append(data_index)
 
     for q in queries:
+        multi_index_list = create_multi_index_list(DIVISIONS)
+
         # creating result set
         result_set = set()
 
