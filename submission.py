@@ -154,6 +154,9 @@ def query(queries, codebooks, codes, T):
             for data_point in subvectors_clusters[centroid_number_tuple]:
                 result_set.add(data_point)
 
+            if len(result_set) >= T:
+                break
+
             for e in stencil_matrix:
                 one_step_ahead = map(adder, e, centroid_index_tuple)
                 # search for dedup
