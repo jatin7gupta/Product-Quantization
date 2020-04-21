@@ -22,21 +22,24 @@ def pq(data, P, init_centroids, max_iter):
             # To get P as centroid index
             codebook_index = index//size_of_division
             cluster_list.append(defaultdict(list))
+
             # using l1 distance as cityblock
             codebook_distance_sum = distance.cdist(data[:, index:index+size_of_division], init_centroids[codebook_index], 'cityblock')
 
+            # getting the minimum distance for each data point from each cluster point
             for idx, value in enumerate(np.argmin(codebook_distance_sum, axis=1)):
                 cluster_list[codebook_index][value].append(idx)
 
         for codebook_index in range(0, len(cluster_list)):
             for cluster_key, data_points in cluster_list[codebook_index].items():
-
+                # using medians to get the next centroid
                 ind = codebook_index * size_of_division
-                init_centroids[codebook_index][cluster_key] = np.median(data[data_points, ind:ind + size_of_division], axis=0)
+                init_centroids[codebook_index][cluster_key] = \
+                    np.median(data[data_points, ind:ind + size_of_division], axis=0)
 
         max_iter = max_iter-1
 
-
+    # calculating codes
     codes = None
     first_time = True
     for index in range(0, COL_LENGTH, size_of_division):
@@ -54,15 +57,7 @@ def pq(data, P, init_centroids, max_iter):
     return init_centroids, codes.astype(np.uint8)
 
 
-def create_multi_index_list(DIVISIONS: int):
-    mi_list = list()
-    for i in range(DIVISIONS):
-        mi_list.append(list())
-    return mi_list
-
-
 def query(queries, codebooks, codes, T):
-
     # final result list
     result_list = []
     QUERIES_COUNT, COL_LENGTH = queries.shape
@@ -71,19 +66,8 @@ def query(queries, codebooks, codes, T):
     CENTROID_NUMBER = 0
     DISTANCE = 1
 
-    class Node(object):
-        def __init__(self, dist: int, centroid_number_tuple: tuple, centroid_index_tuple: tuple):
-            self.dist = dist
-            self.centroid_number_tuple = centroid_number_tuple
-            self.centroid_index_tuple = centroid_index_tuple
-
-        def __lt__(self, other):
-            return self.dist < other.dist
-
-
     # creating P clusters depecting
     subvectors_clusters = defaultdict(list)
-
 
     for data_index, points in enumerate(codes):
         subvectors_clusters[tuple(points)].append(data_index)
@@ -91,7 +75,7 @@ def query(queries, codebooks, codes, T):
     for q in queries:
         multi_index_list = create_multi_index_list(DIVISIONS)
 
-        # creating result set
+        # creating result set for each query
         result_set = set()
 
         # break the queries into sub vectors
@@ -104,30 +88,29 @@ def query(queries, codebooks, codes, T):
             for centroid_number, distance in enumerate(distance_subquery_codebooks):
                 multi_index_list[codebook_index].append((centroid_number, distance))
 
-        # sort multi_index_list
+        # sort multi_index_list on distance
         for l in multi_index_list:
             l.sort(key=lambda x: x[DISTANCE])
 
         base_list = [0] * len(multi_index_list)
         heap = []
 
-        # init get first row of all tables
-
         dedup_set = set()
 
-        centriod_key, distance_centroid_query = get_smallest_centroid_datapoints(CENTROID_NUMBER, DISTANCE, base_list,
-                                                                                 multi_index_list)
+        # init get first row of all tables
+        centriod_key, distance_centroid_query = get_smallest_centroid_datapoints(
+            CENTROID_NUMBER, DISTANCE, base_list,multi_index_list)
 
-        # add new node to heap
+        # add init node to heap and dedup_set
         tuple_centriod_key = tuple(centriod_key)
         tuple_index_key = tuple(base_list)
         dedup_set.add(tuple_index_key)
         heapq.heappush(heap, Node(distance_centroid_query, tuple_centriod_key, tuple_index_key))
 
+        # stencil_matrix helps in finding nearest neighbours
         stencil_matrix = []
         for idx, val in enumerate(base_list):
             for idx_i, val_i in enumerate(itertools.product([0, 1], repeat=len(base_list)-1)):
-                # tuple does not support insert, if this is expensive we will use slicing
                 list_from_tuples = list(val_i)
                 list_from_tuples.insert(idx, val)
                 stencil_matrix.append(list_from_tuples)
@@ -145,12 +128,15 @@ def query(queries, codebooks, codes, T):
             for data_point in subvectors_clusters[centroid_number_tuple]:
                 result_set.add(data_point)
 
+            # stop if we found the nearest neighbours
             if len(result_set) >= T:
                 break
 
+            # getting all nearest neighbours, checking duplicates(dedup) and adding in heap
             for e in stencil_matrix:
                 one_step_ahead = map(adder, e, centroid_index_tuple)
-                # search for dedup
+
+                # check for dedup
                 one_step_ahead = tuple(one_step_ahead)
                 if one_step_ahead not in dedup_set:
                     # added to dedup set
@@ -170,6 +156,13 @@ def query(queries, codebooks, codes, T):
     return result_list
 
 
+def create_multi_index_list(DIVISIONS: int):
+    mi_list = list()
+    for i in range(DIVISIONS):
+        mi_list.append(list())
+    return mi_list
+
+
 def get_smallest_centroid_datapoints(CENTROID_NUMBER, DISTANCE, base_list, multi_index_list):
     # centriod_key can be change
     centriod_key = []
@@ -179,3 +172,13 @@ def get_smallest_centroid_datapoints(CENTROID_NUMBER, DISTANCE, base_list, multi
         distance_centroid_query += tuple_centriod_number_distance[DISTANCE]
         centriod_key.append(tuple_centriod_number_distance[CENTROID_NUMBER])
     return centriod_key, distance_centroid_query
+
+
+class Node(object):
+    def __init__(self, dist: int, centroid_number_tuple: tuple, centroid_index_tuple: tuple):
+        self.dist = dist
+        self.centroid_number_tuple = centroid_number_tuple
+        self.centroid_index_tuple = centroid_index_tuple
+
+    def __lt__(self, other):
+        return self.dist < other.dist
