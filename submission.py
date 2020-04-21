@@ -5,51 +5,38 @@ import heapq
 import itertools
 
 
-
 def pq(data, P, init_centroids, max_iter):
     # constant variables
     ROW_LENGTH, COL_LENGTH = data.shape
-    CODE_BOOK_NUMBER, K, SUB_VECTOR_DIMS_SIZE = init_centroids.shape
 
     # dividing dimensions of data into p parts (M/P from spec)
     size_of_division = COL_LENGTH // P
-    # codebook_distance_sum = np.zeros((ROW_LENGTH, K))
 
     # key: cluster number
     # value: cluster points in key cluster
     cluster_list = None
     while max_iter > 0:
         cluster_list = list()
-        # codebook_distance_sum = np.zeros((ROW_LENGTH, K))
 
         for index in range(0, COL_LENGTH, size_of_division):
             # To get P as centroid index
             codebook_index = index//size_of_division
             cluster_list.append(defaultdict(list))
             # using l1 distance as cityblock
-            # dat = data[:, index:index+size_of_division]
-            # centroid = init_centroids[codebook_index]
             codebook_distance_sum = distance.cdist(data[:, index:index+size_of_division], init_centroids[codebook_index], 'cityblock')
 
             for idx, value in enumerate(np.argmin(codebook_distance_sum, axis=1)):
                 cluster_list[codebook_index][value].append(idx)
 
         for codebook_index in range(0, len(cluster_list)):
-            # cluster = cluster_list[codebook_index]
-            # for index in range(0, COL_LENGTH, size_of_division):
             for cluster_key, data_points in cluster_list[codebook_index].items():
 
-                # codebook_index = index // size_of_division
-                # dat = data[data_points, index:index+size_of_division]
                 ind = codebook_index * size_of_division
-                # dat = data[data_points, ind:ind + size_of_division]
-                # med = np.median(data[data_points, ind:ind + size_of_division], axis=0)
                 init_centroids[codebook_index][cluster_key] = np.median(data[data_points, ind:ind + size_of_division], axis=0)
 
         max_iter = max_iter-1
 
 
-    # TODO: maybe we have to calculate once again
     codes = None
     first_time = True
     for index in range(0, COL_LENGTH, size_of_division):
@@ -66,12 +53,13 @@ def pq(data, P, init_centroids, max_iter):
             codes = np.column_stack((codes, np.argmin(codes_distances, axis=1)))
     return init_centroids, codes.astype(np.uint8)
 
+
 def create_multi_index_list(DIVISIONS: int):
     mi_list = list()
     for i in range(DIVISIONS):
-        # subvectors_clusters.append(defaultdict(list))
         mi_list.append(list())
     return mi_list
+
 
 def query(queries, codebooks, codes, T):
 
@@ -111,8 +99,6 @@ def query(queries, codebooks, codes, T):
             codebook_index = index // SUB_VECTOR_DIMS_SIZE
 
             # using l1 distance as cityblock
-            # codebook_distance_sum = distance.cdist(codebooks[codebook_index],q[index:index + SUB_VECTOR_DIMS_SIZE],
-            #                                         'cityblock')
             dist = (abs(q[index:index + SUB_VECTOR_DIMS_SIZE] - codebooks[codebook_index]))
             distance_subquery_codebooks = np.sum(dist, axis=1)
             for centroid_number, distance in enumerate(distance_subquery_codebooks):
