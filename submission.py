@@ -114,11 +114,11 @@ def query(queries, codebooks, codes, T):
         #         list_from_tuples = list(val_i)
         #         list_from_tuples.insert(idx, val)
         #         stencil_matrix.append(list_from_tuples)
-        for idx in range(len(base_list)-1, -1, -1):
+        for idx, val in enumerate(base_list):
             new_list = list(base_list)
             new_list[idx] = new_list[idx] + 1
             stencil_matrix.append(new_list)
-
+            
         def adder(a, b):
             return a + b
 
