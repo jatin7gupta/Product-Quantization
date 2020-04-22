@@ -109,11 +109,15 @@ def query(queries, codebooks, codes, T):
 
         # stencil_matrix helps in finding nearest neighbours
         stencil_matrix = []
-        for idx, val in enumerate(base_list):
-            for idx_i, val_i in enumerate(itertools.product([0, 1], repeat=len(base_list)-1)):
-                list_from_tuples = list(val_i)
-                list_from_tuples.insert(idx, val)
-                stencil_matrix.append(list_from_tuples)
+        # for idx, val in enumerate(base_list):
+        #     for idx_i, val_i in enumerate(itertools.product([0, 1], repeat=len(base_list)-1)):
+        #         list_from_tuples = list(val_i)
+        #         list_from_tuples.insert(idx, val)
+        #         stencil_matrix.append(list_from_tuples)
+        for idx in range(len(base_list)-1, -1, -1):
+            new_list = list(base_list)
+            new_list[idx] = new_list[idx] + 1
+            stencil_matrix.append(new_list)
 
         def adder(a, b):
             return a + b
