@@ -109,11 +109,6 @@ def query(queries, codebooks, codes, T):
 
         # stencil_matrix helps in finding nearest neighbours
         stencil_matrix = []
-        # for idx, val in enumerate(base_list):
-        #     for idx_i, val_i in enumerate(itertools.product([0, 1], repeat=len(base_list)-1)):
-        #         list_from_tuples = list(val_i)
-        #         list_from_tuples.insert(idx, val)
-        #         stencil_matrix.append(list_from_tuples)
         for idx, val in enumerate(base_list):
             new_list = list(base_list)
             new_list[idx] = new_list[idx] + 1
@@ -171,11 +166,14 @@ def get_smallest_centroid_datapoints(CENTROID_NUMBER, DISTANCE, base_list, multi
     # centriod_key can be change
     centriod_key = []
     distance_centroid_query = 0
-    for idx, cluster_point in enumerate(base_list):
-        tuple_centriod_number_distance = multi_index_list[idx][cluster_point]
-        distance_centroid_query += tuple_centriod_number_distance[DISTANCE]
-        centriod_key.append(tuple_centriod_number_distance[CENTROID_NUMBER])
-    return centriod_key, distance_centroid_query
+    try:
+        for idx, cluster_point in enumerate(base_list):
+            tuple_centriod_number_distance = multi_index_list[idx][cluster_point]
+            distance_centroid_query += tuple_centriod_number_distance[DISTANCE]
+            centriod_key.append(tuple_centriod_number_distance[CENTROID_NUMBER])
+        return centriod_key, distance_centroid_query
+    except:
+        return centriod_key, distance_centroid_query
 
 
 class Node(object):
