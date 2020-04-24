@@ -138,17 +138,18 @@ def query(queries, codebooks, codes, T):
                 # check for dedup
                 one_step_ahead = tuple(one_step_ahead)
                 if one_step_ahead not in dedup_set:
-                    # added to dedup set
-                    dedup_set.add(one_step_ahead)
 
                     # get the value for heap
                     centriod_key, distance_centroid_query = get_smallest_centroid_datapoints(
                         CENTROID_NUMBER, DISTANCE, one_step_ahead, multi_index_list)
+                    if centriod_key is not None and distance_centroid_query is not None:
+                        # added to dedup set
+                        dedup_set.add(one_step_ahead)
 
-                    # add new node to heap
-                    tuple_centriod_key = tuple(centriod_key)
-                    dedup_set.add(one_step_ahead)
-                    heapq.heappush(heap, Node(distance_centroid_query, tuple_centriod_key, one_step_ahead))
+                        # add new node to heap
+                        tuple_centriod_key = tuple(centriod_key)
+                        dedup_set.add(one_step_ahead)
+                        heapq.heappush(heap, Node(distance_centroid_query, tuple_centriod_key, one_step_ahead))
 
         # adding result set to the result list
         result_list.append(result_set)
@@ -173,7 +174,7 @@ def get_smallest_centroid_datapoints(CENTROID_NUMBER, DISTANCE, base_list, multi
             centriod_key.append(tuple_centriod_number_distance[CENTROID_NUMBER])
         return centriod_key, distance_centroid_query
     except:
-        return centriod_key, distance_centroid_query
+        return None, None
 
 
 class Node(object):
