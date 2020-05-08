@@ -6,6 +6,27 @@
  * **Numpy 1.18.2**
  * **Python 3.6**
 
+## Installation steps
+1. You have to be in the root of the project to follow the below steps. i.e. venv should be in the root of the folder.
+2. Make a new virtual environment for python.
+
+```bash
+$ python -m venv ./venv
+```
+
+3. Activate virtual environment. <br/>
+   Windows | Linux/Mac
+
+```bash
+$ venv\Scripts\activate.bat | $ source ./venv/bin/activate
+```
+
+4. Install requirements.
+
+```bash
+$ pip install -r requirements.txt
+```
+
 # Part1: PQ for L1 Distance 
 
 1. **data** is an array with shape (N,M) and dtype='float32', where N is the number of vectors and M is the dimensionality.
