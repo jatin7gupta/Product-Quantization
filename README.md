@@ -36,7 +36,7 @@ Codes is the information of sub-vectors and shows which cluster the sub-vector b
 ## Return Format (Part 2)
 
 The `query()` method returns an array contains the candidates for each query. Specifically, it returns
-* **candidates** is a list with Q elements, where the i-th element is a **set** that contains at least T integers, corresponds to the id of the candidates of the i-th query. For example, assume $T=10$, for some query we have already obtained $9$ candidate points. Since $9 < T$, the algorithm continues. Assume the next retrieved cell contains $3$ points, then the returned set will contain $12$ points in total.
+* **candidates** is a list with Q elements, where the i-th element is a **set** that contains at least T integers, corresponds to the id of the candidates of the i-th query. For example, assume T=10, for some query we have already obtained 9 candidate points. Since 9 < T, the algorithm continues. Assume the next retrieved cell contains 3 points, then the returned set will contain 12 points in total.
 
 ## Implementation details
 Part 2 implements the query method using inverted multi-index list with L1-norm. The objective is to query the codebook and obtain at least T candidates for each query. A multi-index list for each query is maintained that stores the distance of the query from the corresponding centroids. The distance is Manhattan distance(L1/’cityblock’) as per the reasons mentioned above. This list is sorted in ascending order of distance to get the centroid that is closest to the query. We also maintain a ‘subvectors_clusters’ python dictionary whose key is the tuple of centroids and value is the data points that belong to these centroids calculated from codes.
