@@ -1,7 +1,12 @@
 
-# Product Quantization
+# Product Quantization using Inverted multi-index
 
-This project implements a product quantization-based approach for approximate nearest neighbor search. The idea is to decompose the space into a Cartesian product of low-dimensional subspaces and to quantize each subspace separately. A vector is represented by a short code composed of its subspace quantization indices. The L1 (manhattan) distance between two vectors can be efficiently estimated from their codes. An asymmetric version increases precision, as it computes the approximate distance between a vector and a code. Experimental results show that our approach searches for nearest neighbors efficiently, in particular in combination with an inverted file system. Results for SIFT and GIST image descriptors show excellent search accuracy, outperforming three stateof-the-art approaches. The scalability of our approach is validated on a data set of two billion vectors.
+### Product Quantization
+
+This project implements a product quantization-based approach for approximate nearest neighbor search. The idea is to decompose the space into a Cartesian product of low-dimensional subspaces and to quantize each subspace separately. A vector is represented by a short code composed of its subspace quantization indices. The L1 (manhattan) distance between two vectors can be efficiently estimated from their codes. An asymmetric version increases precision, as it computes the approximate distance between a vector and a code. Experimental results show that this approach searches for nearest neighbors efficiently, in particular in combination with an inverted file system. Results for SIFT and GIST image descriptors show excellent search accuracy, outperforming three stateof-the-art approaches. The scalability of our approach is validated on a data set of two billion vectors.
+
+### Inverted multi-index
+A new data structure for efﬁcient similarity search in very large datasets of high-dimensional vectors is implemented. This structure called the inverted multi-index generalizes the inverted index idea by replacing the standard quantization within inverted indices with product quantization. For very similar retrieval complexity and pre-processing time, inverted multi-indices achieve a much denser subdivision of the search space compared to inverted indices, while retaining their memory efﬁciency. Experiments with large datasets of SIFT and GIST vectors demonstrate that because of the denser subdivision, inverted multi-indices are able to return much shorter candidate lists with higher recall, according to the research given below. Augmented with a suitable reranking procedure, multi-indices were able to signiﬁcantly improve the speed of approximate nearest neighbor search on the dataset of 1 billion SIFT vectors compared to the best previously published systems, while achieving better recall and incurring only few percent of memory overhead.
 
 
 
@@ -105,6 +110,10 @@ print(candidates)
 
     [{3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14}]
 
-Implementation and Algorithm sources:
+#### Implementation and Algorithm sources:
 1. **[Inverted Multi Index](./In_Multi-Index.pdf)** 
 2. **[Product Quantization: N-Nearest Neighbour](./PQ%20NN.pdf)**
+
+#### Purpose
+To understand the algorithms and implement them. These algorithms are widely used in many Data Science packages. 
+
