@@ -6,7 +6,7 @@
  * **Numpy 1.18.2**
  * **Python 3.6**
 
-## Part1: PQ for L1 Distance 
+# Part1: PQ for L1 Distance 
 
 1. **data** is an array with shape (N,M) and dtype='float32', where N is the number of vectors and M is the dimensionality.
 2. **P** is the number of partitions/blocks the vector will be split into. Note that in the examples from the inverted multi index paper, P is set to 2. But in this project, you are required to implement a more general case where P can be any integer >= 2. You can assume that P is always divides M in this project. 
@@ -18,6 +18,12 @@
 The `pq()` method returns a codebook and codes for the data vectors, where
 * **codebooks** is an array with shape (P, K, M/P) and dtype='float32', which corresponds to the PQ codebooks for the inverted multi-index. E.g., there are P codebooks and each one has K M/P-dimensional codewords.
 * **codes** is an array with shape (N, P) and dtype=='uint8', which corresponds to the codes for the data vectors. The dtype='uint8' is because K is fixed to be 256 thus the codes should integers between 0 and 255. 
+
+## Implementation details
+Each datapoint is partitioned P times to get sub-vectors. The idea is to find the cluster point which is closest to the sub-vector using Manhattan distance (L1/’cityblock’). Running that for all sub-vectors gives us the information of which cluster centroid represents which points. Once a sub-vector is assigned a cluster, the cluster center changes so as to best represent the vectors that belong in it. New cluster center is calculated by taking median of all the member sub-vectors. We chose L1-norm because the L2 norm squares values, so it increases the cost of outliers exponentially; the L1 norm only takes the absolute value, so it considers them linearly. The exponentiation amplifies the effect of outliers. This entire process is run for a maximum of ‘max_iter’ iterations which is provided with input. At the end, we get our codebooks with values(maybe different from initial values) which will be used to calculate the codes.
+
+Codes is the information of sub-vectors and shows which cluster the sub-vector belongs to. Values are obtained by running the above process once and store the centroid index which is closest to the sub-vector. Codes are returned as ‘uint8’ data type along with the codebooks.
+
 
 # Part2: Query using Inverted Multi-index with $L_1$ Distance (45 Points)
 
@@ -32,21 +38,13 @@ The `pq()` method returns a codebook and codes for the data vectors, where
 The `query()` method returns an array contains the candidates for each query. Specifically, it returns
 * **candidates** is a list with Q elements, where the i-th element is a **set** that contains at least T integers, corresponds to the id of the candidates of the i-th query. For example, assume $T=10$, for some query we have already obtained $9$ candidate points. Since $9 < T$, the algorithm continues. Assume the next retrieved cell contains $3$ points, then the returned set will contain $12$ points in total.
 
-## Implementation Hints
+## Implementation details
+Part 2 implements the query method using inverted multi-index list with L1-norm. The objective is to query the codebook and obtain at least T candidates for each query. A multi-index list for each query is maintained that stores the distance of the query from the corresponding centroids. The distance is Manhattan distance(L1/’cityblock’) as per the reasons mentioned above. This list is sorted in ascending order of distance to get the centroid that is closest to the query. We also maintain a ‘subvectors_clusters’ python dictionary whose key is the tuple of centroids and value is the data points that belong to these centroids calculated from codes.
 
-The implementation of `query()` should be efficiency. You should work out at least
-1. How to efficiently extend Algorithm 3.1 in the paper to a general case with P > 2.
-2. How to efficiently make use of `codes` returned by Part 1. For example, it may not be wise to enumerate all the possible combinations of codewords to build the inverted index. 
+For algorithm 3.1, the closest combination of centroids is chosen to get the candidates. In order to prevent repetition of combination, a ‘dedup’  set is maintained. We maintain a stencil matrix so as to systematically navigate and pick the next combination of closest centroids. A min-Heap of Nodes (complex object) is maintained to always fetch the minimum farthest combination of centroid. Node is a custom Data Structure that stores the combinations centroids for all sub-vectors of query and the respective sum of distance. This structure exists simply to aide in retrieval of combination(centroid indexes) and distance. Each navigation lands us to a new combination and we add it to the heap. The min-Heap is sorted in ascending order hence the smallest element on the basis of distance (which we want) is the first element. Should the combination not exist in ‘dedup’ set, then it is added and we look up ‘subvectors_clusters’ to get the member data points. A spread, which we define as the point from which we need to start looking at the next closest combination. The closest point of one iteration becomes the new point of spread from where we navigate along one step in each dimension (maintained via stencil matrix). This process of finding the closest centroid combination (and consequently the data points) is performed till we have at least ‘T’ data points per query. The process boils down to finding the members of the cluster the query point belongs to. Should the result be less than ‘T’ candidates then we go for the next best cluster(closest cluster) and get its data points. 
 
-We will test the efficiency by setting a running time limit (more details later).
 
-# Evaluation
-
-Your implementation will be tested using 3 testcases (**30 points each, and another 10 points from the report**), your result will be compared with the result of the correct implementation. Part 1 and part 2 will be test **seperately** (e.g., you may still get 45 points from part 2 even if you do not attempt part 1), and you will get full mark for each part if the output of your implementation matches the expected output and 0 mark otherwise. 
-
-**Note:** One of these 3 testcases is the same as the one used in the **submssion system**.
-
-## How to run your implementation (Example)
+## How to run implementation (Example)
 
 
 ```python
@@ -82,23 +80,3 @@ print(candidates)
 
     [{3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14}]
 
-
-
-## Running Time Limits
-
-As shown in the above snippet, we will be recording the running time of both part 1 and part 2. Your implementation is expected to finish with Allowed time Limit. If your code takes longer than Allowed Time Limit, your program will be terminated and you will recieve 0 mark.
-
-For example, on CSE machine, e.g., **wagner**, your code is supposed to finish with in 3 seconds (for part 1) and 1 second (for part 2) for the toy example illustrated above.
-
-## Project Submission and Feedback
-
-For project submission, you are required to submit the following files:
-
-1. Your implementation in a python file `submission.py`.
-
-2. A report `Project.pdf` (**10 points**). You need to write a concise and simple report illustrating
-    - Implementation details of part 1, especially what changes you made to accomodate $L_1$ distance.
-    - Implementation details of part 2, including the details on how you extended the algorithm 3.1 to a more general case with P>2, and how you efficiently retrieve the candidates. 
-
-
-**Note:** Every team will be entitled to **15 Feedback Attempts** (use them wisely), we will use the last submission for final evaluation.
