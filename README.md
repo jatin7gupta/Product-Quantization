@@ -1,40 +1,12 @@
-## Deadline + Late Penalty
 
-**Note :** It will take you quite some time to complete this project, therefore, we earnestly recommend that you start working as early as possible.
+# Product Quantization
 
-
-* Submission deadline for the Project is **20:59:59 on 24th Apr, 2020 (Sydney Time)**.
-* **LATE PENALTY: Late Penalty: 10-% on day-1 and 20% on each subsequent day.**
-
-## Instructions
-1. This note book contains instructions for **COMP9318-Project**.
-
-2. You are required to complete your implementation in a file `submission.py` provided along with this notebook.
-
-3. You are not allowed to print out unnecessary stuff. We will not consider any output printed out on the screen. All results should be returned in appropriate data structures via corresponding functions.
-
-4. You can submit your implementation for **Project** via following link: http://kg.cse.unsw.edu.au/submit/ (for students in China use https://unswkg.net/submit/).
-
-5. For each question, we have provided you with detailed instructions along with question headings. In case of any problem, you can post your query @ Piazza.
-
-6. You are allowed to add other functions and/or import modules (you may have for this project), but you are not allowed to define global variables. **Only functions are allowed** in `submission.py`. 
-
-7. We only support the following modules/libraries, importing other modules will lead to errors. 
+## Requirements
  * **Scipy 1.4.1**
  * **Numpy 1.18.2**
  * **Python 3.6**
 
-8. We will provide immediate feedback on your submission **based on small sample testcases**. You can view the feedback using the online submission portal on the same day.
-
-9. For **Final Evaluation** we will be using more different testcases, so your final scores **may vary** even you have passed the testcase. 
-
-10. You are allowed to have a limited number of Feedback Attempts **(15 Attempts for each Team)**, we will use your **LAST** submission for Final Evaluation.
-
-## Part1: PQ for $L_1$ Distance (45 Points)
-
-In this question, you will implement the product quantization method with $L_1$ distance as the distance function. **Note** that due to the change of distance function, the PQ method introduced in the class no longer works. You need to work out how to adjust the method and make it work for $L_1$ distance. For example, the K-means clustering algorithm works for $L_2$ distance, you need to implement its $L_1$ variants (we denote it as K-means* in this project). You will also need to explain your adjustments in the report later.
-
-Specifically, you are required to write a method `pq()` in the file `submission.py` that takes FOUR arguments as input:
+## Part1: PQ for L1 Distance 
 
 1. **data** is an array with shape (N,M) and dtype='float32', where N is the number of vectors and M is the dimensionality.
 2. **P** is the number of partitions/blocks the vector will be split into. Note that in the examples from the inverted multi index paper, P is set to 2. But in this project, you are required to implement a more general case where P can be any integer >= 2. You can assume that P is always divides M in this project. 
@@ -49,7 +21,6 @@ The `pq()` method returns a codebook and codes for the data vectors, where
 
 # Part2: Query using Inverted Multi-index with $L_1$ Distance (45 Points)
 
-In this question, you will implement the query method using the idea of inverted multi-index with $L_1$ distance. Specifically, you are required to write a method `query()` in the file `submission.py` that takes arguments as input:
 
 1. **queries** is an array with shape (Q, M) and dtype='float32', where Q is the number of query vectors and M is the dimensionality.
 2. **codebooks** is an array with shape (P, K, M/P) and dtype='float32', which corresponds to the `codebooks` returned by `pq()` in part 1.
