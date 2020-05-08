@@ -1,6 +1,10 @@
 
 # Product Quantization
 
+This project implements a product quantization-based approach for approximate nearest neighbor search. The idea is to decompose the space into a Cartesian product of low-dimensional subspaces and to quantize each subspace separately. A vector is represented by a short code composed of its subspace quantization indices. The L1 (manhattan) distance between two vectors can be efficiently estimated from their codes. An asymmetric version increases precision, as it computes the approximate distance between a vector and a code. Experimental results show that our approach searches for nearest neighbors efficiently, in particular in combination with an inverted file system. Results for SIFT and GIST image descriptors show excellent search accuracy, outperforming three stateof-the-art approaches. The scalability of our approach is validated on a data set of two billion vectors.
+
+
+
 ## Requirements
  * **Scipy 1.4.1**
  * **Numpy 1.18.2**
@@ -101,3 +105,6 @@ print(candidates)
 
     [{3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14}]
 
+Implementation and Algorithm sources:
+1. **[Inverted Multi Index](./In_Multi-Index.pdf)** 
+2. **[Product Quantization: N-Nearest Neighbour](./PQ%20NN.pdf)**
