@@ -25,7 +25,7 @@ Each datapoint is partitioned P times to get sub-vectors. The idea is to find th
 Codes is the information of sub-vectors and shows which cluster the sub-vector belongs to. Values are obtained by running the above process once and store the centroid index which is closest to the sub-vector. Codes are returned as ‘uint8’ data type along with the codebooks.
 
 
-# Part2: Query using Inverted Multi-index with $L_1$ Distance (45 Points)
+# Part2: Query using Inverted Multi-index with L1 Distance
 
 
 1. **queries** is an array with shape (Q, M) and dtype='float32', where Q is the number of query vectors and M is the dimensionality.
